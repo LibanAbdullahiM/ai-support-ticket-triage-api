@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/home")
 public class HomeController {
 
     @GetMapping
