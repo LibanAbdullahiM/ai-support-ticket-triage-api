@@ -13,8 +13,11 @@ import java.util.UUID;
 @ToString
 public class TicketResponseDTO {
 
+    private UUID id;
     private String title;
     private String description;
+    private String category;
+    private String priority;
     private String aiSuggestedReply;
     private String status;
     private LocalDate createdAt;

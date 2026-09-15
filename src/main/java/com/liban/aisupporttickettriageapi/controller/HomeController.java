@@ -9,7 +9,7 @@ public class HomeController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public String home() {
-        return "Welcome to AIS Support Ticket Triage API!. Sorry We are under progress Yet." +
+         return "Welcome to AIS Support Ticket Triage API!. Sorry We are under progress Yet." +
                 "We will be online soon. See soon!";
     }
 }
