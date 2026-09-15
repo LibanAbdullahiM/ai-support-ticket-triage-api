@@ -5,6 +5,8 @@ import com.liban.aisupporttickettriageapi.model.enums.Priority;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class AiTriageServiceImpl implements AiTriageService {
 
@@ -33,6 +35,22 @@ public class AiTriageServiceImpl implements AiTriageService {
                 "2. priority " + priorities + "\n" +
                 "3. aiSuggestedReply ( A polite, helpful 2-sentence draft for the support team to the user)";
         
-        return chatModel.call(prompt);
+        return cleanJsonOutput(Objects.requireNonNull(chatModel.call(prompt)));
+    }
+
+    private String cleanJsonOutput(String prompt) {
+        if (prompt.isEmpty()) {
+            return "";
+        }
+
+        String cleaned = prompt.trim();
+
+        if (cleaned.startsWith("```")) {
+            cleaned = cleaned.replaceAll("^```(?:json)?", "")
+                    .replaceAll("```$", "")
+                    .trim();
+        }
+
+        return cleaned;
     }
 }
