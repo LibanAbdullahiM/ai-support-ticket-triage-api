@@ -14,6 +14,6 @@ public class TicketRequestDTO {
     @Size(min = 25, max = 255)
     private String title;
 
-    @Size(min = 100, max = 999, message = "Description must be minimum length of 100 characters")
+    @Size(min = 50, max = 999, message = "Description must be minimum length of 100 characters")
     private String description;
 }

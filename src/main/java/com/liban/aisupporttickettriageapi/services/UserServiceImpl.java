@@ -133,6 +133,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponseDTO getByUsername(String username) {
+        User user =  userRepository.findByUsername(username);
+        if  (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        return userMapper.toUserResponseDTO(user);
+    }
+
+    @Override
     public void deleteUser(UUID user_id) {
         Optional<User> userOptional =  userRepository.findById(user_id);
 
