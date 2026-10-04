@@ -20,5 +20,7 @@ public interface UserService {
 
     UserResponseDTO getUserById(UUID user_id);
 
+    UserResponseDTO getByUsername(String username);
+
     void deleteUser(UUID user_id);
 }

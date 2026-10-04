@@ -8,11 +8,14 @@ import com.liban.aisupporttickettriageapi.exceptions.ResourceNotFoundException;
 import com.liban.aisupporttickettriageapi.mapper.TicketMapper;
 import com.liban.aisupporttickettriageapi.model.Ticket;
 import com.liban.aisupporttickettriageapi.model.User;
+import com.liban.aisupporttickettriageapi.model.UserPrincipal;
 import com.liban.aisupporttickettriageapi.model.enums.Category;
 import com.liban.aisupporttickettriageapi.model.enums.Priority;
 import com.liban.aisupporttickettriageapi.model.enums.TicketStatus;
 import com.liban.aisupporttickettriageapi.repositories.TicketRepository;
 import com.liban.aisupporttickettriageapi.repositories.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -74,13 +77,11 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public Set<TicketResponseDTO> getTicketsByPriority(String priority) {
 
-        Set<Ticket> tickets = new HashSet<>(ticketRepository.findAll());
-
-        Set<Ticket> ticketsByPriority = filterByPriority(tickets, priority);
+        Set<Ticket> tickets = new HashSet<>(ticketRepository.findTicketSByPriority(Priority.valueOf(priority)));
 
         Set<TicketResponseDTO> ticketResponseDTOs = new HashSet<>();
 
-        for (Ticket ticket : ticketsByPriority) {
+        for (Ticket ticket : tickets) {
             ticketResponseDTOs.add(ticketMapper.toTicketResponseDTO(ticket));
         }
 
@@ -100,6 +101,16 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public TicketResponseDTO save(TicketRequestDTO ticketRequestDTO) {
+
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        assert authentication != null;
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        assert userPrincipal != null;
+        User user = userPrincipal.getUser();
+
         String aiTriage = aiTriageService.analyzeTicket(ticketRequestDTO.getTitle(), ticketRequestDTO.getDescription());
 
         //convert the AI replied JSON into Strings
@@ -126,10 +137,9 @@ public class TicketServiceImpl implements TicketService {
         ticket.setPriority(Priority.valueOf(priority));
         ticket.setAiSuggestedReply(aiSuggestedReply);
 
-        //set the user after implementing the security part
-        //Save to db
+        ticket.setUser(user);
 
-        return ticketMapper.toTicketResponseDTO(ticket);
+        return ticketMapper.toTicketResponseDTO(ticketRepository.save(ticket));
     }
 
     @Override
@@ -148,16 +158,5 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public void deleteById(UUID ticket_id) {
         ticketRepository.deleteById(ticket_id);
-    }
-
-    private Set<Ticket> filterByPriority(Set<Ticket> tickets, String priority) {
-        if (priority == null) {
-            return tickets;
-        }
-
-        return tickets
-                .stream()
-                .filter(ticket -> ticket.getPriority().name().equals(priority))
-                .collect(Collectors.toSet());
     }
 }
