@@ -1,5 +1,6 @@
 package com.liban.aisupporttickettriageapi.services;
 
+import com.liban.aisupporttickettriageapi.dtos.request.LoginRequest;
 import com.liban.aisupporttickettriageapi.dtos.request.UserRequestDTO;
 import com.liban.aisupporttickettriageapi.dtos.response.UserResponseDTO;
 
@@ -7,6 +8,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface UserService {
+
+    String verify(LoginRequest loginRequest);
 
     UserResponseDTO registerUser(UserRequestDTO userRequestDTO);
 

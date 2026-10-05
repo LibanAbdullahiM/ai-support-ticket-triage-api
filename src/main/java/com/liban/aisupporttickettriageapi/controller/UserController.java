@@ -1,5 +1,6 @@
 package com.liban.aisupporttickettriageapi.controller;
 
+import com.liban.aisupporttickettriageapi.dtos.request.LoginRequest;
 import com.liban.aisupporttickettriageapi.dtos.request.UserRequestDTO;
 import com.liban.aisupporttickettriageapi.dtos.response.UserResponseDTO;
 import com.liban.aisupporttickettriageapi.model.User;
@@ -21,9 +22,11 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public UserResponseDTO login(@RequestBody User user) {
+    public Map<String, String> login(@RequestBody LoginRequest request) {
 
-        return userService.getByUsername(user.getUsername());
+        String generatedJwtToken = userService.verify(request);
+
+        return Map.of("token", generatedJwtToken);
     }
 
     @PostMapping("/register")

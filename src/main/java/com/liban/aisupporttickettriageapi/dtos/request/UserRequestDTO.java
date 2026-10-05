@@ -19,7 +19,7 @@ public class UserRequestDTO {
     @Email(message = "Invalid email format")
     private String email;
 
-    @Getter
+    @NotBlank
     @Size(min = 3, max = 100)
     private String username;
 

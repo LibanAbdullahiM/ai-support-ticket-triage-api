@@ -1,5 +1,6 @@
 package com.liban.aisupporttickettriageapi.services;
 
+import com.liban.aisupporttickettriageapi.dtos.request.LoginRequest;
 import com.liban.aisupporttickettriageapi.dtos.request.UserRequestDTO;
 import com.liban.aisupporttickettriageapi.dtos.response.UserResponseDTO;
 import com.liban.aisupporttickettriageapi.exceptions.ResourceAlreadyExistsException;
@@ -9,6 +10,11 @@ import com.liban.aisupporttickettriageapi.model.Role;
 import com.liban.aisupporttickettriageapi.model.User;
 import com.liban.aisupporttickettriageapi.repositories.RoleRepository;
 import com.liban.aisupporttickettriageapi.repositories.UserRepository;
+import com.liban.aisupporttickettriageapi.utils.JwtUtils;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +30,33 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final JwtUtils jwtUtils;
+    private final AuthenticationManager authManager;
 
     public UserServiceImpl(UserRepository userRepository,
                            UserMapper userMapper,
-                           RoleRepository roleRepository) {
+                           RoleRepository roleRepository,
+                           JwtUtils jwtUtils,
+                           AuthenticationManager authManager) {
         this.passwordEncoder = new BCryptPasswordEncoder(12);
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.roleRepository = roleRepository;
+        this.jwtUtils = jwtUtils;
+        this.authManager = authManager;
+    }
+
+    @Override
+    public String verify(LoginRequest loginRequest) {
+
+        Authentication auth = authManager.authenticate(new
+                UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
+
+        if (auth.isAuthenticated()) {
+            return jwtUtils.generateJwtToken(loginRequest.username());
+        }
+
+        throw new UsernameNotFoundException("Username not found");
     }
 
     @Override
