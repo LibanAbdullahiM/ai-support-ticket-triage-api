@@ -3,7 +3,6 @@ package com.liban.aisupporttickettriageapi.controller;
 import com.liban.aisupporttickettriageapi.dtos.request.LoginRequest;
 import com.liban.aisupporttickettriageapi.dtos.request.UserRequestDTO;
 import com.liban.aisupporttickettriageapi.dtos.response.UserResponseDTO;
-import com.liban.aisupporttickettriageapi.model.User;
 import com.liban.aisupporttickettriageapi.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody LoginRequest request) {
+    public Map<String, String> login(@Valid @RequestBody LoginRequest request) {
 
         String generatedJwtToken = userService.verify(request);
 
