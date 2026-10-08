@@ -6,6 +6,7 @@ import com.liban.aisupporttickettriageapi.services.TicketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -19,6 +20,7 @@ public class TicketController {
     private final TicketService ticketService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
     @ResponseStatus(HttpStatus.OK)
     public Set<TicketResponseDTO> getTickets(@RequestParam(required = false) String priority) {
         if (priority != null) {
@@ -29,6 +31,7 @@ public class TicketController {
     }
 
     @GetMapping("/{ticket_id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
     @ResponseStatus(HttpStatus.OK)
     public TicketResponseDTO getTicketById(@PathVariable UUID ticket_id) {
         return ticketService.getTicketById(ticket_id);
@@ -42,6 +45,7 @@ public class TicketController {
     }
 
     @PutMapping("/{ticket_id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
     @ResponseStatus(HttpStatus.OK)
     public TicketResponseDTO updateStatus(@PathVariable UUID ticket_id,
                                           @RequestParam String status) {
@@ -49,6 +53,7 @@ public class TicketController {
     }
 
     @DeleteMapping("/{ticket_id}/delete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
     @ResponseStatus(HttpStatus.OK)
     public void deleteTicketById(@PathVariable UUID ticket_id) {
         ticketService.deleteById(ticket_id);
