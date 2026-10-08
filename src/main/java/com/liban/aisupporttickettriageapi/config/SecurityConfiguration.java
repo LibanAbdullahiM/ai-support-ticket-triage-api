@@ -1,5 +1,6 @@
 package com.liban.aisupporttickettriageapi.config;
 
+import com.liban.aisupporttickettriageapi.exceptions.JwtAccessDeniedHandler;
 import com.liban.aisupporttickettriageapi.exceptions.JwtAuthenticationEntryPoint;
 import com.liban.aisupporttickettriageapi.filter.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +31,16 @@ public class SecurityConfiguration {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler accessDeniedHandler;
 
     public SecurityConfiguration(UserDetailsService userDetailsService,
                                  JwtAuthenticationFilter jwtAuthenticationFilter,
-                                 JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+                                 JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+                                 JwtAccessDeniedHandler accessDeniedHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -49,8 +53,9 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .anyRequest().authenticated())
-                .exceptionHandling(ex ->
-                        ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
 
